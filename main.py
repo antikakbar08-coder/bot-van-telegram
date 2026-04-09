@@ -4,8 +4,8 @@ import requests
 import random
 
 # CONFIG
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
+GEMINI_API_KEY = os.getenv("AIzaSyAWILUhe_XidZOAdz_UNI_OAQnIiFenntY")
+TELEGRAM_TOKEN = os.getenv("8271284602:AAEYxg7YK1ncHHHOyxzeu0agBdx0u3Czb34")
 TELEGRAM_CHAT_ID = "7222492037"
 
 genai.configure(api_key=GEMINI_API_KEY)
