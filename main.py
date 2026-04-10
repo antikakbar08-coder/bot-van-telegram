@@ -8,6 +8,7 @@ WEBHOOK_URL = "https://discord.com/api/webhooks/1492253373418700982/EztM0BJF8zJl
 GROQ_API_KEY = "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"
 
 def send_to_discord(text):
+    """Kirim ke Discord per 1900 karakter agar tidak error"""
     chunks = [text[i:i+1900] for i in range(0, len(text), 1900)]
     for chunk in chunks:
         requests.post(WEBHOOK_URL, json={"content": chunk})
@@ -15,24 +16,26 @@ def send_to_discord(text):
 
 def buat_artikel():
     topik = random.choice([
-        "Update Masa Depan Crypto 2026", 
-        "Info Transfer Pemain Bola Terbaru", 
-        "Tips Kesehatan Herbal Alami"
+        "Update Masa Depan Crypto dan Bitcoin 2026", 
+        "Info Bursa Transfer Pemain Bola Terkini", 
+        "Rahasia Sehat dengan Herbal Alami Indonesia"
     ])
     
     print(f"🤖 Groq sedang menulis artikel: {topik}...")
     client = Groq(api_key=GROQ_API_KEY)
     
+    # MENGGUNAKAN MODEL TERBARU: llama-3.3-70b-versatile
     completion = client.chat.completions.create(
-        messages=[{"role": "user", "content": f"Tulis artikel 1000 kata tentang {topik} dalam Bahasa Indonesia. Gunakan jarak 2 baris antar paragraf. Tanpa simbol bintang."}],
-        model="llama3-70b-8192",
+        messages=[{"role": "user", "content": f"Tulis artikel berita mendalam 1000 kata tentang {topik} dalam Bahasa Indonesia yang santai. WAJIB: Gunakan jarak 2 baris antar paragraf. Jangan pakai simbol bintang (*)."}],
+        model="llama-3.3-70b-versatile",
     )
     return completion.choices[0].message.content
 
 if __name__ == "__main__":
     try:
         artikel = buat_artikel()
-        send_to_discord("🚀 **ARTIKEL BARU DARI GROQ** 🚀\n\n" + artikel)
-        print("✅ SUKSES! Cek Discord kamu sekarang.")
+        header = "━━━━━━━━━━━━━━━━━━━━━━━━━━\n🚀 **ARTIKEL BARU SIAP COPAS** 🚀\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+        send_to_discord(header + artikel)
+        print("✅ SUKSES TOTAL! Silakan cek Discord kamu.")
     except Exception as e:
         print(f"❌ ERROR: {e}")
