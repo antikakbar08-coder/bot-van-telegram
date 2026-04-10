@@ -1,47 +1,64 @@
 import requests
 import random
 import time
-import sys
 from groq import Groq
 
-# --- KONFIGURASI UTAMA ---
+# --- KONFIGURASI ---
 WEBHOOK_URL = "https://discord.com/api/webhooks/1492253373418700982/EztM0BJF8zJlnGGTa5DuyotmHNm-WK_d_mf2qxDT_nmlrYj2MhhGQZogG5o1TyBIEFru"
 GROQ_API_KEY = "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"
 
-def send_to_discord(text, is_header=False):
-    """Mengirim pesan ke Discord. Header dikirim sekali, artikel dikirim per bagian."""
-    if is_header:
-        requests.post(WEBHOOK_URL, json={"content": text})
-    else:
-        # Kirim per 1900 karakter agar tidak kena limit Discord
-        chunks = [text[i:i+1900] for i in range(0, len(text), 1900)]
-        for chunk in chunks:
-            try:
-                requests.post(WEBHOOK_URL, json={"content": chunk})
-                time.sleep(2) # Jeda agar tidak dianggap spam
-            except Exception as e:
-                print(f"Gagal kirim bagian artikel: {e}")
-
 def buat_artikel():
-    """Membuat artikel 600 kata dengan topik acak yang banyak"""
-    
-    # BANK TOPIK (Kamu bisa tambah sendiri di sini)
+    # Daftar topik bervariasi
     kategori_topik = [
-        "Analisis Harga Bitcoin dan Masa Depan Crypto 2026",
-        "Update Bursa Transfer Pemain Liga Inggris Musim Depan",
-        "Rahasia Kesehatan Jantung dengan Konsumsi Herbal Alami",
-        "Perkembangan Kecerdasan Buatan (AI) yang Mengubah Dunia",
-        "Tips Investasi Saham dan Reksa Dana untuk Pemula",
-        "Destinasi Wisata Paling Hits di Indonesia Tahun 2026",
-        "Cara Mengatur Keuangan Keluarga di Tengah Inflasi",
-        "Manfaat Olahraga Lari Pagi untuk Kesehatan Mental",
-        "Strategi SEO Terbaru 2026 agar Blog Ramai Pengunjung",
-        "Review Gadget Terbaru: Fitur dan Keunggulan Produk Flagship"
+        "Analisis Harga Bitcoin dan Prediksi Crypto Market 2026",
+        "Rumor Transfer Pemain Liga Inggris dan Klub Besar Eropa",
+        "Manfaat Tanaman Herbal untuk Stamina Tubuh Alami",
+        "Perkembangan Teknologi AI yang Mengubah Dunia Kerja",
+        "Tips Investasi Saham Pemula agar Cuan Maksimal",
+        "Destinasi Wisata Tersembunyi di Indonesia Tahun 2026",
+        "Strategi SEO Terbaru agar Blog Muncul di Page One",
+        "Review Fitur Canggih Smartphone Flagship Terbaru"
     ]
     
-    topik_terpilih = random.choice(kategori_topik)
-    
-    print(f"🤖 Sedang menulis artikel tentang: {topik_terpilih}...")
+    topik = random.choice(kategori_topik)
+    print(f"🤖 Sedang menulis artikel 300 kata: {topik}...")
     
     try:
-        client = Groq(api_key=GRO
+        client = Groq(api_key=GROQ_API_KEY)
+        completion = client.chat.completions.create(
+            messages=[
+                {
+                    "role": "user", 
+                    "content": f"Tuliskan artikel berita sebanyak 300 KATA tentang: {topik}. "
+                               f"Gunakan Bahasa Indonesia yang padat dan jelas. "
+                               f"WAJIB: Baris pertama JUDUL (KAPITAL). "
+                               f"Gunakan jarak 2 baris (ENTER 2X) tiap paragraf. "
+                               f"Jangan pakai simbol bintang (*) atau tanda tebal. Kirim teks polos saja."
+                }
+            ],
+            model="llama-3.3-70b-versatile",
+        )
+        return completion.choices[0].message.content
+    except Exception as e:
+        return f"Gagal membuat artikel: {e}"
+
+def kirim_ke_discord(teks):
+    # Langsung kirim seluruh teks dalam satu pesan (Karena 300 kata < 2000 karakter)
+    try:
+        payload = {"content": teks}
+        response = requests.post(WEBHOOK_URL, json=payload)
+        if response.status_code == 204 or response.status_code == 200:
+            print("✅ BERHASIL! Artikel 300 kata dikirim dalam satu pesan.")
+        else:
+            print(f"❌ Gagal mengirim. Kode: {response.status_code}")
+    except Exception as e:
+        print(f"❌ Error pengiriman: {e}")
+
+if __name__ == "__main__":
+    # Jalankan proses
+    artikel = buat_artikel()
+    
+    # Tambahkan pembatas tipis di atas judul
+    header_kecil = "📌 **UPDATE ARTIKEL HARI INI**\n\n"
+    
+    kirim_ke_discord(header_kecil + artikel)
