@@ -8,50 +8,58 @@ WEBHOOK_URL = "https://discord.com/api/webhooks/1492253373418700982/EztM0BJF8zJl
 GROQ_API_KEY = "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"
 
 def send_to_discord(text):
-    """Mengirim artikel ke Discord dengan pembagian per 1900 karakter"""
     chunks = [text[i:i+1900] for i in range(0, len(text), 1900)]
     for chunk in chunks:
         try:
             requests.post(WEBHOOK_URL, json={"content": chunk})
-            time.sleep(2) # Jeda agar Discord tidak memblokir
+            time.sleep(2)
         except Exception as e:
             print(f"Gagal kirim: {e}")
 
 def buat_artikel():
-    """Membuat artikel 600 kata menggunakan model terbaru Groq"""
-    topik = random.choice([
-        "Update Masa Depan Crypto dan Bitcoin 2026", 
-        "Analisis Bursa Transfer Pemain Sepakbola Dunia", 
-        "Panduan Hidup Sehat dengan Ramuan Herbal Alami"
-    ])
+    # DAFTAR TOPIK YANG LEBIH BANYAK DAN BERAGAM
+    kategori_topik = [
+        "Analisis Harga Bitcoin dan Prediksi Crypto Market Minggu Ini",
+        "Rumor Transfer Pemain Liga Inggris dan Drama Klub Besar Eropa",
+        "Manfaat Temulawak dan Jahe untuk Kesehatan Jantung",
+        "Perkembangan Teknologi AI Terbaru di Tahun 2026",
+        "Tips Menabung dan Investasi Saham untuk Pemula",
+        "Destinasi Wisata Tersembunyi di Indonesia yang Wajib Dikunjungi",
+        "Resep Makanan Sehat Pengganti Nasi untuk Diet Alami",
+        "Review Gadget Terbaru dan Fitur Canggih yang Akan Rilis",
+        "Strategi Meningkatkan Traffic Blog dengan Teknik SEO 2026",
+        "Kabar Terbaru Hasil Pertandingan Liga Champions Tadi Malam"
+    ]
     
-    print(f"🤖 Sedang meracik artikel 600 kata: {topik}...")
+    topik_terpilih = random.choice(kategori_topik)
+    
+    print(f"🤖 Sedang menulis topik baru: {topik_terpilih}...")
     
     try:
         client = Groq(api_key=GROQ_API_KEY)
-        # Menggunakan model 'llama-3.3-70b-versatile' yang paling stabil
         completion = client.chat.completions.create(
             messages=[
                 {
                     "role": "user", 
-                    "content": f"Tuliskan artikel berita mendalam sebanyak 600 KATA tentang {topik}. Gunakan Bahasa Indonesia yang profesional. WAJIB: Gunakan jarak 2 baris (ENTER 2X) antar paragraf. JANGAN pakai simbol bintang (*)."
+                    "content": f"Tuliskan artikel berita 600 KATA tentang: {topik_terpilih}. Gunakan Bahasa Indonesia profesional. WAJIB: Baris pertama JUDUL (KAPITAL). Berikan jarak 2 baris (ENTER 2X) tiap paragraf. Jangan pakai simbol bintang (*)."
                 }
             ],
             model="llama-3.3-70b-versatile",
         )
         return completion.choices[0].message.content
     except Exception as e:
-        return f"❌ Terjadi kesalahan mesin: {str(e)}"
+        return f"❌ Error: {str(e)}"
 
 if __name__ == "__main__":
     try:
         artikel_hasil = buat_artikel()
         
-        # Header untuk mempercantik tampilan di Discord
-        header = "━━━━━━━━━━━━━━━━━━━━━━━━━━\n🚀 **ARTIKEL BARU (600 KATA) SIAP**\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+        # Header lebih rapi dengan jarak ekstra
+        header = "━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+        header += "📢 **ARSIP ARTIKEL TERBARU**\n"
+        header += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n\n"
         
         send_to_discord(header + artikel_hasil)
-        print("✅ BERHASIL! Artikel 600 kata sudah dikirim ke Discord.")
-        
+        print("✅ Berhasil! Topik bervariasi sudah dikirim.")
     except Exception as e:
-        print(f"❌ Error Utama: {e}")
+        print(f"❌ Error: {e}")
